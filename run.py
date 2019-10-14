@@ -12,15 +12,16 @@ except:
 
 while True:
     print("1: Apriori")
-    print("2: FP-Growth")
-    model = input("Choose a model for analysis(1 or 2): ")
+    print("2: Apriori-Improved")
+    print("3: FP-Growth")    
+    model = input("Choose a model for analysis(1, 2 or 3): ")
     if not model:
         continue
-    elif model == "1" or model == "2":
+    elif model == "1" or model == "2" or model == "3":
         model = int(model)
         break
     else:
-        print("Please either input 1 or 2!")
+        print("Please either input 1, 2 or 3!")
 
 while True:
     min_sup = input("Enter minimum support(1-30000, recommend 8000): ")
@@ -45,26 +46,43 @@ for line in fhand:  #read the data file
         attrSet.remove('?')
     database.append(attrSet)
 
+transDict = dict()
+for trans in database:
+    temSet = frozenset(trans)
+    if temSet not in transDict:
+        transDict[temSet] = 1
+    else:
+        transDict[temSet] += 1
+
 print("Calculating frequent itemsets")
 t = time()
 
 #Apriori
-if model == 1:
-    attrDict = dict()
-    for line in database:
-        for attr in line:
-            if attr not in attrDict:
-                attrDict[attr] = 1
-            else:
-                attrDict[attr] += 1
-
+if model == 1 or model == 2:
+    if model == 1:  #original method
+        attrDict = dict()
+        for line in database:
+            for attr in line:
+                if attr not in attrDict:
+                    attrDict[attr] = 1
+                else:
+                    attrDict[attr] += 1    
+    else: #improved method related to transDict described above to eliminate duplicate records
+        attrDict = dict()
+        for trans in transDict:
+            for attr in trans:
+                if attr not in attrDict:
+                    attrDict[attr] = transDict[trans]
+                else:
+                    attrDict[attr] += transDict[trans]
+    
     L1 = list()
     temSet = set()
     for attr in attrDict:
         if attrDict[attr] >= min_sup:
             temSet.add(attr)
             L1.append(temSet)
-            temSet = set()
+            temSet = set()    
 
     Lk = list(L1)
     L_all = list(L1)
@@ -72,7 +90,10 @@ if model == 1:
     while len(Lk) > 0:
         Ck = apriori.apriori_gen(Lk, k)
         Lk = list()
-        cDict = apriori.createDict(Ck, database)
+        if model == 1:  #original method
+            cDict = apriori.createDict(Ck, database)
+        else:   #improved method
+            cDict = apriori.createDict_improved(Ck, transDict)
         for c in Ck:
             key = frozenset(c)
             if key in cDict and cDict[key] >= min_sup:
@@ -82,23 +103,17 @@ if model == 1:
 
     for itemsets in L_all:
         print(itemsets)
-    print(len(L_all))
+    print(len(L_all), "Frequent Itemsets Total")
     print("Calculated in %.1fs" % (time() - t))
 
 #FP-growth
 else:
-    transDict = dict()
-    for trans in database:
-        temSet = frozenset(trans)
-        if temSet not in transDict:
-            transDict[temSet] = 1
-        else:
-            transDict[temSet] += 1
     tree, D1 = fpgrowth.buildTree(transDict, min_sup)
     freqItemList = []
     fpgrowth.findFreqItems(tree, D1, min_sup, [], freqItemList)
     for x in freqItemList:
         print(x)
-    print(len(freqItemList))
+    print(len(freqItemList), "Frequent Itemsets Total")
     print("Calculated in %.1fs" % (time() - t))
+
 

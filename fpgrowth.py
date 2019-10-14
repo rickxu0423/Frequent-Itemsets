@@ -40,13 +40,13 @@ def buildTree(dataDict, min_sup):
             D1[item] = [D1[item], None]
         startTree = Linkedlist('null')
         L1 = set(D1) #create set for frequent items
-        for trans, count in dataDict.items(): #frozenset({}):number
+        for trans, count in dataDict.items():
             temDict = dict()
             for item in trans:
                 if item in L1: #filter based on min_sup
                     temDict[item] = D1[item][0]
             if len(temDict) > 0:
-                #sort the frequent item with descending order
+                #sort the frequent item by descending order
                 orderedTuple = sorted(temDict.items(), key=lambda kv: kv[1], reverse=True)
                 orderedList = list()
                 for tup in orderedTuple:
@@ -57,7 +57,7 @@ def buildTree(dataDict, min_sup):
         return None, None
 
 def updateTree(Dk, tree, D1, count):
-    if Dk[0] not in tree.children: #if the first node of item is not a child, create a new branch
+    if Dk[0] not in tree.children: #create a new branch
         tree.children[Dk[0]] = Linkedlist(Dk[0], count, tree)
         if D1[Dk[0]][1] == None:
             D1[Dk[0]][1] = tree.children[Dk[0]]

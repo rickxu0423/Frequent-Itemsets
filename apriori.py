@@ -24,6 +24,18 @@ def createDict(Ck, database):
                         cDict[fc] += 1
     return cDict
 
+def createDict_improved(Ck, transDict):
+    cDict = {}
+    for trans in transDict:
+        for c in Ck:            
+                if c.issubset(trans):
+                    fc = frozenset(c)
+                    if fc not in cDict:
+                        cDict[fc] = transDict[trans]
+                    else:
+                        cDict[fc] += transDict[trans]
+    return cDict
+
 def has_infrequent_subset(c, Lk, k):
     subSetList = list()
     for subtuple in combinations(c, k-1):
