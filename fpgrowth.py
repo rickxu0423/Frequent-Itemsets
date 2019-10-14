@@ -1,7 +1,7 @@
 from linkedList import Linkedlist
 
 def findFreqItems(tree, D1, min_sup, emptySet, freqItemList):
-    orderedTuple = sorted(D1.items(), key=lambda kv: kv[1], reverse=True)
+    orderedTuple = sorted(D1.items(), key=lambda kv: kv[0], reverse=True)
     orderedList = list()
     for tup in orderedTuple:
         orderedList.append(tup[0])
@@ -47,7 +47,7 @@ def buildTree(dataDict, min_sup):
                     temDict[item] = D1[item][0]
             if len(temDict) > 0:
                 #sort the frequent item by descending order
-                orderedTuple = sorted(temDict.items(), key=lambda kv: kv[1], reverse=True)
+                orderedTuple = sorted(temDict.items(), key=lambda kv: kv[0], reverse=True)
                 orderedList = list()
                 for tup in orderedTuple:
                     orderedList.append(tup[0])
